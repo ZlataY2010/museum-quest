@@ -37,6 +37,16 @@
         <h1 class="hero__title rise rise--2">Название квеста</h1>
         <p class="hero__lead rise rise--3">Совместный квест по залам природы и истории.</p>
         <button type="button" class="btn btn--hero rise rise--4" data-goto="select">Начать квест</button>
+        <div class="hero__links rise rise--4">
+          <button type="button" class="btn-link" data-goto="authors">
+            <svg class="icon icon--xs" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Авторы проекта
+          </button>
+          <button type="button" class="btn-link" data-goto="feedback">
+            <svg class="icon icon--xs" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+            Оставить отзыв
+          </button>
+        </div>
       </div>
     </section>
 
@@ -121,7 +131,7 @@
           <div class="options" id="quest-options"></div>
           <div class="hint" id="quest-hint">
             <svg class="icon icon--sm" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5A4.6 4.6 0 0 1 9 14"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
-            <span>Подсказка. Осмотритесь в зале.</span>
+            <span id="quest-hint-text">Подсказка. Осмотритесь в зале.</span>
           </div>
         </div>
 
@@ -182,13 +192,9 @@
           </span>
           <div class="reward__titles">
             <span class="reward__title">Стикерпак в подарок</span>
-            <span class="reward__sub">Покажите код на кассе или откройте по ссылке</span>
+            <span class="reward__sub">Нажмите кнопку, чтобы забрать стикеры</span>
           </div>
         </div>
-        <label class="promo">
-          <input class="promo__input" type="text" placeholder="КОД" aria-label="Промокод" autocomplete="off">
-          <span class="promo__label">Промокод</span>
-        </label>
         <button type="button" class="btn btn--outline">Получить стикерпак</button>
       </div>
 
@@ -198,7 +204,62 @@
       </div>
     </section>
 
-    <footer class="footer" id="footer" hidden>Совместный проект двух музеев</footer>
+    <!-- ===================== 5. Авторы ===================== -->
+    <section id="screen-authors" class="screen screen--page" data-screen="authors" hidden>
+      <header class="topbar">
+        <button type="button" class="btn-icon" id="authors-back" aria-label="Назад">
+          <svg class="icon icon--sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span class="kicker">О проекте</span>
+      </header>
+
+      <div class="stack rise">
+        <h2 class="title">Авторы</h2>
+        <p class="lead">Над квестом работали:</p>
+      </div>
+
+      <ul class="authors rise rise--2">
+        <li class="author">Фамилия Имя Отчество</li>
+        <li class="author">Фамилия Имя Отчество</li>
+        <li class="author">Фамилия Имя Отчество</li>
+        <li class="author">Фамилия Имя Отчество</li>
+      </ul>
+
+      <p class="lead authors__museums rise rise--3">Дарвиновский музей&ensp;×&ensp;Государственный исторический музей</p>
+    </section>
+
+    <!-- ===================== 6. Обратная связь ===================== -->
+    <section id="screen-feedback" class="screen screen--page" data-screen="feedback" hidden>
+      <header class="topbar">
+        <button type="button" class="btn-icon" id="feedback-back" aria-label="Назад">
+          <svg class="icon icon--sm" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span class="kicker">Обратная связь</span>
+      </header>
+
+      <div class="stack rise">
+        <h2 class="title">Что можно улучшить?</h2>
+        <p class="lead">Нашли ошибку в вопросе, что-то было непонятно или не понравилось? Расскажите нам — это займёт пару минут.</p>
+      </div>
+
+      <div class="reward rise rise--2">
+        <div class="reward__head">
+          <span class="reward__icon">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          </span>
+          <div class="reward__titles">
+            <span class="reward__title">Анонимная анкета</span>
+            <span class="reward__sub">Откроется в новой вкладке, в Яндекс Формах</span>
+          </div>
+        </div>
+        <a class="btn btn--outline" id="feedback-link" href="#" target="_blank" rel="noopener">Заполнить анкету</a>
+        <span class="reward__sub" id="feedback-missing" hidden>Анкета скоро появится.</span>
+      </div>
+    </section>
+
+    <footer class="footer" id="footer" hidden>
+      Совместный проект двух музеев&ensp;·&ensp;<button type="button" class="footer__link" data-goto="authors">Авторы</button>&ensp;·&ensp;<button type="button" class="footer__link" data-goto="feedback">Отзыв</button>
+    </footer>
   </div>
 
   <script src="js/particles.js"></script>
