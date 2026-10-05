@@ -141,6 +141,13 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
   color: rgba(192, 182, 165, .6);
 }
 
+.footer__link {
+  padding: 0; border: 0; background: none;
+  font: inherit; letter-spacing: inherit; text-transform: inherit;
+  color: var(--tint); cursor: pointer;
+}
+.footer__link:hover { text-decoration: underline; }
+
 /* Появление элементов */
 .rise { animation: rise .8s var(--ease) both; }
 .rise--2 { animation-delay: .1s; }
@@ -149,6 +156,7 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
 
 /* --- 5. Главная ----------------------------------------------- */
 .hero { display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 3vh, 40px); text-align: center; }
+.hero__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; margin-top: calc(-1 * clamp(4px, 1.5vh, 24px)); }
 
 .brand { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 .brand__marks { display: flex; align-items: center; }
@@ -191,6 +199,7 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
 .btn:active { transform: scale(.99); }
 .btn:disabled { opacity: .4; cursor: default; filter: none; transform: none; }
 .btn--block { width: 100%; }
+a.btn { display: inline-flex; align-items: center; justify-content: center; }
 
 .btn--primary { color: var(--tint-ink); background: var(--tint-fill); box-shadow: 0 14px 34px var(--tint-glow); }
 
@@ -214,6 +223,18 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
   border: 1px solid color-mix(in srgb, var(--tint-fill) 55%, transparent);
 }
 .btn--outline:hover { filter: none; background: color-mix(in srgb, var(--tint-fill) 24%, transparent); }
+
+.btn-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  border: 0; border-radius: var(--r-pill);
+  font-size: 14px; font-weight: 600;
+  color: rgba(220, 211, 196, .8);
+  background: transparent;
+  cursor: pointer;
+  transition: color .2s, background .2s;
+}
+.btn-link:hover { color: var(--c-cream-100); background: var(--surface); }
 
 .btn-icon {
   width: 48px; height: 48px; flex: none;
@@ -473,27 +494,30 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 .reward__title { font-family: var(--font-display); font-weight: 700; font-size: 17px; line-height: 1.15; color: var(--c-cream-100); }
 .reward__sub { font-size: 13px; color: rgba(220, 211, 196, .75); }
 
-.promo {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 4px 16px;
-  border-radius: var(--r-pill);
-  background: color-mix(in srgb, var(--c-ink-900) 45%, transparent);
-  border: 1px dashed color-mix(in srgb, var(--tint-fill) 45%, transparent);
-  cursor: text;
-}
-.promo__input {
-  flex: 1; min-width: 0; min-height: 40px;
-  border: 0; outline: none; background: transparent;
-  font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: .1em;
-  color: var(--c-cream-100);
-  caret-color: var(--tint-fill);
-}
-.promo__input::placeholder { color: rgba(220, 211, 196, .45); }
-.promo__label { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; color: rgba(192, 182, 165, .88); }
-
 .invite { font-family: var(--font-display); font-weight: 700; font-size: 15px; line-height: 1.3; color: var(--c-cream-100); }
 
-/* --- 11. Анимации --------------------------------------------- */
+/* --- 11. Авторы ----------------------------------------------- */
+#screen-authors,
+#screen-feedback { max-width: 620px; }
+
+.authors {
+  margin: 0; padding: 0; list-style: none;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+}
+.author {
+  display: flex; align-items: center;
+  min-height: 56px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--font-display); font-weight: 700; font-size: 16px; line-height: 1.25;
+  color: var(--c-cream-100);
+  overflow-wrap: anywhere;
+}
+.authors__museums { align-self: center; max-width: none; margin-top: 8px; text-align: center; }
+
+/* --- 12. Анимации --------------------------------------------- */
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 @keyframes spin { to { transform: rotate(360deg); } }
