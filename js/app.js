@@ -1,6 +1,7 @@
 /**
  * Музейный квест — логика приложения.
- * Экраны: главная → выбор музея → квест (вопрос → пояснение) → финал со званием.
+ * Экраны: главная → выбор музея → квест (вопрос → пояснение) → финал со званием;
+ * «Авторы» и «Обратная связь» — из главной и футера.
  * Вопросы лежат в js/questions.js (window.QUEST_QUESTIONS).
  */
 (function () {
@@ -10,7 +11,7 @@
 
   var CONFIG = {
     showHints: true,          // показывать подсказку под вариантами ответа
-    minutesPerQuest: 20       // подпись на карточке музея
+    feedbackUrl: ''           // ссылка на Яндекс Форму для отзывов ('' — кнопка скрыта)
   };
 
   var MUSEUMS = {
@@ -40,6 +41,7 @@
 
   var state = {
     screen: 'home',
+    prevScreen: 'home', // откуда открыли «Авторов» или «Обратную связь»
     museum: null,
     index: 0,          // номер текущего вопроса
     picked: [],        // выбранные варианты
@@ -69,12 +71,17 @@
     questAsk: $('quest-ask'),
     questOptions: $('quest-options'),
     questHint: $('quest-hint'),
+    questHintText: $('quest-hint-text'),
     questReveal: $('quest-reveal'),
     questResults: $('quest-results'),
     questExplain: $('quest-explain'),
     questExplainText: $('quest-explain-text'),
     questNext: $('quest-next'),
     questBack: $('quest-back'),
+    authorsBack: $('authors-back'),
+    feedbackBack: $('feedback-back'),
+    feedbackLink: $('feedback-link'),
+    feedbackMissing: $('feedback-missing'),
     finalResult: $('final-result'),
     rankKicker: $('rank-kicker'),
     rankTitle: $('rank-title'),
@@ -116,7 +123,10 @@
 
   /* --- Навигация ------------------------------------------------ */
 
+  var ASIDE_SCREENS = ['authors', 'feedback']; // открываются поверх и возвращают туда, откуда пришли
+
   function showScreen(name) {
+    if (ASIDE_SCREENS.indexOf(name) !== -1 && ASIDE_SCREENS.indexOf(state.screen) === -1) state.prevScreen = state.screen;
     state.screen = name;
     Object.keys(screens).forEach(function (key) { screens[key].hidden = key !== name; });
     el.footer.hidden = name === 'home';
@@ -135,7 +145,7 @@
       card.querySelector('[data-role="kicker"]').textContent = isDone ? 'Пройден' : MUSEUMS[key].kicker;
       card.querySelector('[data-role="meta"]').textContent = isDone
         ? 'Пройти заново'
-        : (QUESTIONS[key] || []).length + ' вопросов · ' + CONFIG.minutesPerQuest + ' мин';
+        : (QUESTIONS[key] || []).length + ' вопросов';
     });
   }
 
@@ -152,6 +162,8 @@
 
   /* --- Квест ---------------------------------------------------- */
 
+  var DEFAULT_HINT = 'Подсказка. Осмотритесь в зале.';
+
   function renderQuest() {
     var list = questions();
     var q = current();
@@ -165,6 +177,7 @@
     el.questAsk.hidden = state.revealed;
     el.questReveal.hidden = !state.revealed;
     el.questHint.hidden = !CONFIG.showHints;
+    el.questHintText.textContent = q.hint ? 'Где искать: ' + q.hint : DEFAULT_HINT;
 
     if (state.revealed) renderReveal(q); else renderOptions(q);
 
@@ -314,6 +327,12 @@
 
   el.questNext.addEventListener('click', goNext);
   el.questBack.addEventListener('click', goBack);
+  el.authorsBack.addEventListener('click', function () { showScreen(state.prevScreen); });
+  el.feedbackBack.addEventListener('click', function () { showScreen(state.prevScreen); });
+
+  el.feedbackLink.hidden = !CONFIG.feedbackUrl;
+  el.feedbackMissing.hidden = !!CONFIG.feedbackUrl;
+  if (CONFIG.feedbackUrl) el.feedbackLink.href = CONFIG.feedbackUrl;
 
   showScreen('home');
 })();
