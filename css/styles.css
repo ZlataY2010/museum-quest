@@ -176,7 +176,7 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
 .mark--history { color: var(--c-history);    border-color: color-mix(in srgb, var(--c-history) 70%, transparent);    background: color-mix(in srgb, var(--c-history-900) 55%, transparent); }
 
 .hero__title {
-  font-size: clamp(34px, min(11.5vw, 11vh), 88px);
+  font-size: clamp(24px, min(11.5vw, 11vh), 88px);
   line-height: 1.02; letter-spacing: -.02em;
   max-width: 16ch; text-wrap: balance;
 }
