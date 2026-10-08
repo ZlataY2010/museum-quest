@@ -4,19 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1b1913">
-  <title>Два музея —  одна история</title>
+  <title>Два музея — одна история</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
+<!-- data-museum переключает акцентный цвет (darwin — зелёный, shm — оранжевый), его меняет app.js -->
 <body data-museum="darwin">
 
   <!-- Фон: частицы + виньетка -->
   <canvas id="particles" class="particles" aria-hidden="true"></canvas>
   <div class="vignette" aria-hidden="true"></div>
 
+  <!-- Экраны: виден всегда один, остальные скрыты атрибутом hidden (см. showScreen в app.js).
+       Кнопки с data-goto="имя" открывают экран с data-screen="имя". -->
   <div class="app">
 
     <!-- ===================== 1. Главная ===================== -->
@@ -34,7 +37,7 @@
           <p class="brand__caption">Дарвиновский музей&ensp;×&ensp;ГИМ</p>
         </div>
 
-        <h3 class="hero__title rise rise--2">Два музея одна история</h3>
+        <h1 class="hero__title rise rise--2">Два музея одна история</h1>
         <button type="button" class="btn btn--hero rise rise--4" data-goto="select">Начать квест</button>
         <div class="hero__links rise rise--4">
           <button type="button" class="btn-link" data-goto="authors">
@@ -62,6 +65,7 @@
         <h2 class="title">Выберите музей</h2>
       </div>
 
+      <!-- data-start-quest — ключ музея в MUSEUMS и QUEST_QUESTIONS; бейдж и «N вопросов» заполняет app.js -->
       <div class="museum-grid">
         <button type="button" class="museum-card museum-card--nature rise" data-start-quest="darwin">
           <div class="museum-card__head">
@@ -118,6 +122,7 @@
 
       <div class="progress"><div class="progress__bar" id="quest-progress"></div></div>
 
+      <!-- Содержимое панели заполняет renderQuest() в app.js -->
       <div class="panel">
         <h3 class="panel__question" id="quest-question"></h3>
         <span class="panel__note" id="quest-multi" hidden>Можно выбрать несколько вариантов</span>
@@ -206,29 +211,31 @@
 
       <!-- Слайдер: свайп влево — кнопка секретного помощника -->
       <div class="slider" id="authors-slider">
+        <!-- Слайд 1: список авторов -->
         <div class="slide">
-      <div class="stack rise">
-        <h2 class="title">Авторы</h2>
-        <p class="lead">Над квестом работали:</p>
-      </div>
+          <div class="stack rise">
+            <h2 class="title">Авторы</h2>
+            <p class="lead">Над квестом работали:</p>
+          </div>
 
-      <div class="authors rise rise--2">
-        <ul class="authors__col">
-          <li class="author">Хижниченко Т.</li>
-          <li class="author">Ёрхова З.</li>
-          <li class="author">Капустина О.</li>
-          <li class="author">Облова Д.</li>
-        </ul>
-        <ul class="authors__col">
-          <li class="author">Козырев Ю.</li>
-          <li class="author">Ващук Л.</li>
-          <li class="author">Евсеева П.</li>
-        </ul>
-      </div>
+          <div class="authors rise rise--2">
+            <ul class="authors__col">
+              <li class="author">Хижниченко Т.</li>
+              <li class="author">Ёрхова З.</li>
+              <li class="author">Капустина О.</li>
+              <li class="author">Облова Д.</li>
+            </ul>
+            <ul class="authors__col">
+              <li class="author">Козырев Ю.</li>
+              <li class="author">Ващук Л.</li>
+              <li class="author">Евсеева П.</li>
+            </ul>
+          </div>
 
-      <p class="lead authors__museums rise rise--3"><span class="nowrap">Дарвиновский музей</span>&ensp;× <span class="nowrap">Государственный исторический музей</span></p>
+          <p class="lead authors__museums rise rise--3"><span class="nowrap">Дарвиновский музей</span>&ensp;× <span class="nowrap">Государственный исторический музей</span></p>
         </div>
 
+        <!-- Слайд 2: кнопка пасхалки -->
         <div class="slide slide--secret">
           <button type="button" class="btn btn--outline meow-open" id="meow-open">
             Секретный помощник
@@ -237,7 +244,7 @@
       </div>
 
       <!-- Пасхалка: котик -->
-      <div class="meow" id="meow" role="dialog" aria-label="Мяу" hidden>
+      <div class="meow" id="meow" role="dialog" aria-modal="true" aria-label="Мяу" hidden>
         <canvas class="particles particles--meow" aria-hidden="true"></canvas>
         <div class="meow__card">
           <button type="button" class="meow__close" id="meow-close" aria-label="Закрыть">
@@ -289,11 +296,13 @@
             <span class="reward__sub">Откроется в новой вкладке, в Яндекс Формах</span>
           </div>
         </div>
+        <!-- Адрес анкеты берётся из CONFIG.feedbackUrl в app.js -->
         <a class="btn btn--outline" id="feedback-link" href="#" target="_blank" rel="noopener">Заполнить анкету</a>
         <span class="reward__sub" id="feedback-missing" hidden>Анкета скоро появится.</span>
       </div>
     </section>
 
+    <!-- Подвал: скрыт на главной и в квесте -->
     <footer class="footer" id="footer" hidden>
       <span class="footer__part">Совместный проект двух музеев</span>
       <span class="footer__sep" aria-hidden="true">·</span>
@@ -301,6 +310,7 @@
     </footer>
   </div>
 
+  <!-- Порядок важен: questions.js должен загрузиться раньше app.js -->
   <script src="js/particles.js"></script>
   <script src="js/questions.js"></script>
   <script src="js/app.js"></script>

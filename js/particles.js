@@ -9,11 +9,12 @@
   var CONFIG = {
     baseCount: 100,                                                   // частиц на «эталонном» экране
     colors: ['rgba(237,118,14,', 'rgba(174,191,146,', 'rgba(238,231,219,'], // оранжевый / зелёный / кремовый
-    maxDpr: 2
+    maxDpr: 2                                                         // выше не поднимаем — экономим ресурсы на Retina
   };
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /** Случайное число в диапазоне [min, max). */
   function random(min, max) {
     return min + Math.random() * (max - min);
   }
@@ -24,7 +25,7 @@
     var width = 0;
     var height = 0;
     var dots = [];
-    var time = 0;
+    var time = 0;      // «часы» анимации: для покачивания и мерцания
 
     /** Пересчитать размер холста и заново создать частицы. */
     function build() {
@@ -32,6 +33,7 @@
 
       width = canvas.clientWidth;
       height = canvas.clientHeight;
+      // Буфер холста — в физических пикселях, а рисуем в CSS-пикселях (масштаб через setTransform).
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -55,6 +57,7 @@
       }
     }
 
+    /** Нарисовать одну частицу с заданной прозрачностью (цвет хранится как 'rgba(r,g,b,'). */
     function drawDot(dot, alpha) {
       ctx.beginPath();
       ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
@@ -70,31 +73,44 @@
       }
     }
 
-    function frame() {
+    var lastTime = 0;  // метка времени предыдущего кадра (0 — отсчёт ещё не начат)
+
+    /**
+     * Один кадр анимации; цикл идёт постоянно, даже пока холст скрыт.
+     * now — время кадра от requestAnimationFrame, в миллисекундах.
+     */
+    function frame(now) {
       requestAnimationFrame(frame);
 
       // Скрытый холст не рисуем; размер изменился (ресайз, холст стал видимым) — пересобираем.
-      if (!canvas.clientWidth) { width = 0; return; }
+      if (!canvas.clientWidth) { width = 0; lastTime = 0; return; }
       if (canvas.clientWidth !== width || canvas.clientHeight !== height) {
         build();
         if (reduceMotion) dots.forEach(function (dot) { drawDot(dot, dot.alpha); });   // один статичный кадр
       }
       if (reduceMotion) return;
 
-      time += 0.016;
+      // Шаг в «кадрах по 60 Гц»: на 120 Гц ≈ 0.5, на 60 Гц ≈ 1 — скорость одинакова на любом экране.
+      // Ограничиваем 3, чтобы после возврата на вкладку частицы не «прыгали».
+      var step = lastTime ? Math.min((now - lastTime) / (1000 / 60), 3) : 1;
+      lastTime = now;
+
+      time += 0.016 * step;
       ctx.clearRect(0, 0, width, height);
 
       for (var i = 0; i < dots.length; i++) {
         var dot = dots[i];
 
-        dot.x += dot.speedX + Math.sin(time * 0.6 + dot.phase) * 0.12;
-        dot.y += dot.speedY;
+        // Дрейф вверх + лёгкое покачивание из стороны в сторону.
+        dot.x += (dot.speedX + Math.sin(time * 0.6 + dot.phase) * 0.12) * step;
+        dot.y += dot.speedY * step;
 
         // Зацикливаем движение по краям холста.
         if (dot.y < -12) { dot.y = height + 8; dot.x = random(0, width); }
         if (dot.x < -12) dot.x = width + 8;
         if (dot.x > width + 12) dot.x = -8;
 
+        // Мерцание: яркость колеблется от 20% до 100% базовой.
         drawDot(dot, dot.alpha * (0.6 + 0.4 * Math.sin(time * 1.5 + dot.phase)));
       }
     }

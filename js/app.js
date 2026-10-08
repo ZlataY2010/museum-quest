@@ -27,7 +27,11 @@
     { min: 0,  title: 'Юный исследователь', note: 'Каждый учёный с чего-то начинал. Возвращайтесь за новыми открытиями!' }
   ];
 
-  var LETTERS = ['А', 'Б', 'В', 'Г'];
+  var LETTERS = ['А', 'Б', 'В', 'Г'];                     // буквы вариантов ответа по индексу
+  var DEFAULT_HINT = 'Подсказка. Осмотритесь в зале.';    // если у вопроса нет поля hint
+  var ASIDE_SCREENS = ['authors', 'feedback'];            // открываются «сбоку» и возвращают туда, откуда пришли
+
+  // Вопросы из js/questions.js; заглушка — на случай, если файл не загрузился.
   var QUESTIONS = window.QUEST_QUESTIONS || { darwin: [], shm: [] };
 
   /* --- Состояние ------------------------------------------------ */
@@ -47,14 +51,17 @@
 
   var $ = function (id) { return document.getElementById(id); };
 
+  // Все экраны по имени из data-screen: { home: <section>, select: <section>, ... }
   var screens = {};
   document.querySelectorAll('[data-screen]').forEach(function (node) {
     screens[node.dataset.screen] = node;
   });
 
+  // Ссылки на элементы, с которыми работает код (ищем один раз при загрузке).
   var el = {
     footer: $('footer'),
     museumCards: document.querySelectorAll('[data-start-quest]'),
+    questPanel: document.querySelector('#screen-quest .panel'),
     questMuseum: $('quest-museum'),
     questStep: $('quest-step'),
     questProgress: $('quest-progress'),
@@ -71,6 +78,7 @@
     questNext: $('quest-next'),
     questBack: $('quest-back'),
     authorsBack: $('authors-back'),
+    authorsSlider: $('authors-slider'),
     feedbackBack: $('feedback-back'),
     feedbackLink: $('feedback-link'),
     feedbackMissing: $('feedback-missing'),
@@ -90,11 +98,11 @@
 
   /* --- Вспомогательное ------------------------------------------ */
 
-  function pad(n) { return String(n).padStart(2, '0'); }
-  function percent(right, total) { return Math.round((right / (total || 1)) * 100); }
-  function questions() { return QUESTIONS[state.museum] || []; }
-  function current() { return questions()[state.index]; }
-  function isMulti(q) { return q.correct.length > 1; }
+  function pad(n) { return String(n).padStart(2, '0'); }                                // 3 → «03»
+  function percent(right, total) { return Math.round((right / (total || 1)) * 100); }  // защита от деления на 0
+  function questions() { return QUESTIONS[state.museum] || []; }                       // вопросы текущего музея
+  function current() { return questions()[state.index]; }                             // текущий вопрос
+  function isMulti(q) { return q.correct.length > 1; }                                 // можно выбрать несколько
 
   /** Верно, только если выбраны все правильные варианты и ни одного лишнего. */
   function isCorrect(q, picked) {
@@ -102,11 +110,15 @@
       q.correct.every(function (i) { return picked.indexOf(i) !== -1; });
   }
 
-  /** Создать элемент строки ответа: буква + текст (+ вердикт). */
+  /**
+   * Создать элемент строки ответа: буква + текст (+ вердикт).
+   * tag — 'button' для выбора ответа, 'div' для строки результата.
+   */
   function optionNode(tag, index, label, verdict) {
     var node = document.createElement(tag);
     node.className = 'option';
     if (tag === 'button') node.type = 'button';
+    // Каркас — через innerHTML, а текст — через textContent, чтобы он не разбирался как HTML.
     node.innerHTML = '<span class="option__letter"></span><span class="option__label"></span>' +
       (verdict ? '<span class="option__verdict"></span>' : '');
     node.querySelector('.option__letter').textContent = LETTERS[index];
@@ -117,13 +129,18 @@
 
   /* --- Подгонка под экран ------------------------------------- */
 
-  /** Ужимает текст и отступы вопроса (--k от 1 до 0.72), пока всё не поместится без прокрутки. */
-  var panel = document.querySelector('#screen-quest .panel');
+  /**
+   * Ужимает текст и отступы вопроса (--k от 1 до 0.72), пока всё не поместится без прокрутки.
+   * CSS-переменная --k умножается на размеры шрифтов и отступов в .panel (см. styles.css).
+   */
   function fitQuest() {
     var screen = screens.quest;
-    if (screen.hidden) return;
+    var panel = el.questPanel;
+    if (screen.hidden) return;                 // у скрытого экрана нечего измерять
+
     var k = 1;
     screen.style.setProperty('--k', k);
+    // +1 — допуск на дробные пиксели; шаг 0.02, округляем, чтобы не копились ошибки float.
     while (panel.scrollHeight > panel.clientHeight + 1 && k > 0.72) {
       k = Math.round((k - 0.02) * 100) / 100;
       screen.style.setProperty('--k', k);
@@ -131,31 +148,37 @@
     panel.scrollTop = 0;
   }
 
+  // При ресайзе пересчитываем не чаще раза в 80 мс (debounce).
   var fitTimer;
   window.addEventListener('resize', function () {
     clearTimeout(fitTimer);
     fitTimer = setTimeout(fitQuest, 80);
   });
+  // Веб-шрифты меняют размеры текста — пересчитываем после их загрузки.
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitQuest);
 
   /* --- Навигация ------------------------------------------------ */
 
-  var ASIDE_SCREENS = ['authors', 'feedback']; // открываются поверх и возвращают туда, откуда пришли
-
+  /** Показать экран по имени (значение data-screen) и обновить его содержимое. */
   function showScreen(name) {
+    // Запоминаем, куда вернуться из «Авторов»/«Отзыва» (переход между ними точку возврата не меняет).
     if (ASIDE_SCREENS.indexOf(name) !== -1 && ASIDE_SCREENS.indexOf(state.screen) === -1) state.prevScreen = state.screen;
     state.screen = name;
+
     Object.keys(screens).forEach(function (key) { screens[key].hidden = key !== name; });
     el.footer.hidden = name === 'home' || name === 'quest';
+
     if (name === 'select') renderMuseumCards();
     if (name === 'final') renderFinal();
-    if (name === 'authors') $('authors-slider').scrollTo({ left: 0, behavior: 'instant' });
+    if (name === 'authors') el.authorsSlider.scrollTo({ left: 0, behavior: 'instant' }); // всегда с первого слайда
+
     window.scrollTo(0, 0);
     fitQuest();
   }
 
   /* --- Выбор музея ---------------------------------------------- */
 
+  /** Подписи на карточках музеев: номер квеста и количество вопросов. */
   function renderMuseumCards() {
     el.museumCards.forEach(function (card) {
       var key = card.dataset.startQuest;
@@ -164,6 +187,7 @@
     });
   }
 
+  /** Начать квест выбранного музея с первого вопроса. */
   function startQuest(museum) {
     state.museum = museum;
     state.index = 0;
@@ -177,18 +201,19 @@
 
   /* --- Квест ---------------------------------------------------- */
 
-  var DEFAULT_HINT = 'Подсказка. Осмотритесь в зале.';
-
+  /** Перерисовать экран квеста по текущему состоянию (вызывается после каждого действия). */
   function renderQuest() {
     var list = questions();
     var q = current();
 
+    // Шапка и прогресс: вопрос засчитывается в прогресс, как только выбран ответ.
     el.questMuseum.textContent = MUSEUMS[state.museum].name;
     el.questStep.textContent = pad(state.index + 1) + ' / ' + pad(list.length);
     el.questProgress.style.width = percent(state.index + (state.picked.length ? 1 : 0), list.length) + '%';
     el.questQuestion.textContent = q.q;
     el.questMulti.hidden = !isMulti(q);
 
+    // Шаг 1 (выбор) и шаг 2 (результат) — взаимоисключающие блоки.
     el.questAsk.hidden = state.revealed;
     el.questReveal.hidden = !state.revealed;
     el.questHint.hidden = !CONFIG.showHints;
@@ -196,6 +221,7 @@
 
     if (state.revealed) renderReveal(q); else renderOptions(q);
 
+    // «Далее» неактивна, пока ничего не выбрано; на пояснении к последнему вопросу — «Завершить квест».
     el.questNext.disabled = state.picked.length === 0;
     el.questNext.textContent = state.index + 1 >= list.length && state.revealed ? 'Завершить квест' : 'Далее';
     fitQuest();
@@ -212,6 +238,7 @@
     });
   }
 
+  /** Клик по варианту: в мульти-вопросе — включить/выключить, в обычном — заменить выбор. */
   function toggleOption(q, i) {
     if (isMulti(q)) {
       var at = state.picked.indexOf(i);
@@ -228,7 +255,7 @@
     q.a.forEach(function (label, i) {
       var right = q.correct.indexOf(i) !== -1;
       var chosen = state.picked.indexOf(i) !== -1;
-      if (!right && !chosen) return;
+      if (!right && !chosen) return;           // невыбранные неверные варианты не показываем
 
       var verdict = chosen ? (right ? 'Верно' : 'Неверно') : 'Правильный ответ';
       var node = optionNode('div', i, label, verdict);
@@ -237,10 +264,11 @@
       el.questResults.appendChild(node);
     });
 
-    el.questExplain.hidden = !q.explain;
+    el.questExplain.hidden = !q.explain;       // пустое пояснение — блок скрыт
     el.questExplainText.textContent = q.explain || '';
   }
 
+  /** Кнопка «Далее»: ответ → пояснение → следующий вопрос (или финал). */
   function goNext() {
     var q = current();
     if (!state.picked.length) return;
@@ -252,6 +280,7 @@
       return;
     }
 
+    // Результат фиксируется при уходе с пояснения; повторный ответ на тот же вопрос его перезапишет.
     state.answers[state.index] = isCorrect(q, state.picked);
 
     if (state.index + 1 >= questions().length) {
@@ -265,13 +294,14 @@
     }
   }
 
+  /** Кнопка «Назад» в квесте. */
   function goBack() {
     if (state.revealed) {            // с пояснения — обратно к выбору ответа
       state.revealed = false;
-    } else if (state.index > 0) {
+    } else if (state.index > 0) {    // к предыдущему вопросу, выбор сбрасывается
       state.index -= 1;
       state.picked = [];
-    } else {
+    } else {                         // с первого вопроса — к выбору музея
       showScreen('select');
       return;
     }
@@ -280,6 +310,7 @@
 
   /* --- Финал ---------------------------------------------------- */
 
+  /** Подсчитать верные ответы и перейти на финал. */
   function completeQuest() {
     var total = questions().length;
     var right = Object.keys(state.answers).filter(function (k) { return state.answers[k]; }).length;
@@ -290,9 +321,11 @@
     showScreen('final');
   }
 
+  /** Заполнить финальный экран: результат, звание, статистика, приглашение. */
   function renderFinal() {
     var score = state.score || { right: 0, total: 0 };
     var pct = percent(score.right, score.total);
+    // RANKS отсортированы по убыванию min — берём первое подходящее звание.
     var rank = RANKS.filter(function (r) { return pct >= r.min; })[0];
 
     el.finalResult.textContent = 'Верных ответов: ' + score.right + ' из ' + score.total;
@@ -305,7 +338,7 @@
     el.finalInvite.textContent = inviteText();
   }
 
-  /** Приглашение во второй музей. */
+  /** Приглашение во второй музей (тот, что не проходили). */
   function inviteText() {
     var other = Object.keys(MUSEUMS).filter(function (k) { return k !== state.museum; })[0];
     return MUSEUMS[other].invite;
@@ -313,6 +346,7 @@
 
   /* --- События -------------------------------------------------- */
 
+  // Любая кнопка с data-goto="имя" открывает соответствующий экран.
   document.querySelectorAll('[data-goto]').forEach(function (button) {
     button.addEventListener('click', function () { showScreen(button.dataset.goto); });
   });
@@ -323,17 +357,46 @@
 
   el.questNext.addEventListener('click', goNext);
   el.questBack.addEventListener('click', goBack);
+  // «Назад» на боковых экранах возвращает туда, откуда их открыли.
   el.authorsBack.addEventListener('click', function () { showScreen(state.prevScreen); });
   el.feedbackBack.addEventListener('click', function () { showScreen(state.prevScreen); });
 
-  /* Пасхалка: котик на странице авторов */
+  /* --- Пасхалка: котик на странице авторов ---------------------- */
+
   /** Открыть/закрыть окно котика; подвал под ним прячем, чтобы не просвечивал. */
   function toggleMeow(open) {
     el.meow.hidden = !open;
     document.body.classList.toggle('is-meow', open);
+    // Фокус — внутрь окна при открытии и обратно на кнопку при закрытии (для клавиатуры и скринридеров).
+    (open ? el.meowPet : el.meowOpen).focus();
   }
 
   el.meowOpen.addEventListener('click', function () { toggleMeow(true); });
+
+  // Клавиатура в открытом окне: Esc закрывает, Tab ходит по кругу только по кнопкам окна.
+  document.addEventListener('keydown', function (event) {
+    if (el.meow.hidden) return;
+
+    if (event.key === 'Escape') {
+      toggleMeow(false);
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      var focusable = el.meow.querySelectorAll('button');
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      var inside = el.meow.contains(document.activeElement);
+
+      if (event.shiftKey && (document.activeElement === first || !inside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !inside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
 
   el.meowPet.addEventListener('click', function () {
     el.meowCat.classList.remove('is-spinning');
@@ -343,6 +406,9 @@
   el.meowCat.addEventListener('animationend', function () { el.meowCat.classList.remove('is-spinning'); });
   el.meowClose.addEventListener('click', function () { toggleMeow(false); });
 
+  /* --- Старт ---------------------------------------------------- */
+
+  // Ссылка на анкету: пока feedbackUrl пуст, вместо кнопки — «Анкета скоро появится».
   el.feedbackLink.hidden = !CONFIG.feedbackUrl;
   el.feedbackMissing.hidden = !!CONFIG.feedbackUrl;
   if (CONFIG.feedbackUrl) el.feedbackLink.href = CONFIG.feedbackUrl;
