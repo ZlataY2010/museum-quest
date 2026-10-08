@@ -27,13 +27,6 @@
     { min: 0,  title: 'Юный исследователь', note: 'Каждый учёный с чего-то начинал. Возвращайтесь за новыми открытиями!' }
   ];
 
-  /* Доп. звание после двух маршрутов — по музею с большей долей верных ответов */
-  var BONUS = {
-    shm:    { title: 'Историк',    cls: 'rank__bonus--history' },
-    darwin: { title: 'Натуралист', cls: 'rank__bonus--nature' },
-    tie:    { title: 'Эрудит',     cls: '' }
-  };
-
   var LETTERS = ['А', 'Б', 'В', 'Г'];
   var QUESTIONS = window.QUEST_QUESTIONS || { darwin: [], shm: [] };
 
@@ -47,8 +40,7 @@
     picked: [],        // выбранные варианты
     revealed: false,   // показано ли пояснение
     answers: {},       // { номер вопроса: верно ли }
-    done: [],          // пройденные маршруты
-    scores: {}         // { darwin: { right, total }, shm: { ... } }
+    score: null        // { right, total } — результат последнего квеста
   };
 
   /* --- Элементы ------------------------------------------------- */
@@ -82,15 +74,17 @@
     feedbackBack: $('feedback-back'),
     feedbackLink: $('feedback-link'),
     feedbackMissing: $('feedback-missing'),
+    meowOpen: $('meow-open'),
+    meow: $('meow'),
+    meowCat: $('meow-cat'),
+    meowPet: $('meow-pet'),
+    meowClose: $('meow-close'),
     finalResult: $('final-result'),
     rankKicker: $('rank-kicker'),
     rankTitle: $('rank-title'),
     rankNote: $('rank-note'),
-    rankBonus: $('rank-bonus'),
-    rankBonusTitle: $('rank-bonus-title'),
     statRight: $('stat-right'),
     statAccuracy: $('stat-accuracy'),
-    statRoutes: $('stat-routes'),
     finalInvite: $('final-invite')
   };
 
@@ -129,9 +123,10 @@
     if (ASIDE_SCREENS.indexOf(name) !== -1 && ASIDE_SCREENS.indexOf(state.screen) === -1) state.prevScreen = state.screen;
     state.screen = name;
     Object.keys(screens).forEach(function (key) { screens[key].hidden = key !== name; });
-    el.footer.hidden = name === 'home';
+    el.footer.hidden = name === 'home' || name === 'quest';
     if (name === 'select') renderMuseumCards();
     if (name === 'final') renderFinal();
+    if (name === 'authors') $('authors-slider').scrollTo({ left: 0, behavior: 'instant' });
     window.scrollTo(0, 0);
   }
 
@@ -140,12 +135,8 @@
   function renderMuseumCards() {
     el.museumCards.forEach(function (card) {
       var key = card.dataset.startQuest;
-      var isDone = state.done.indexOf(key) !== -1;
-      card.classList.toggle('is-done', isDone);
-      card.querySelector('[data-role="kicker"]').textContent = isDone ? 'Пройден' : MUSEUMS[key].kicker;
-      card.querySelector('[data-role="meta"]').textContent = isDone
-        ? 'Пройти заново'
-        : (QUESTIONS[key] || []).length + ' вопросов';
+      card.querySelector('[data-role="kicker"]').textContent = MUSEUMS[key].kicker;
+      card.querySelector('[data-role="meta"]').textContent = (QUESTIONS[key] || []).length + ' вопросов';
     });
   }
 
@@ -268,51 +259,31 @@
     var total = questions().length;
     var right = Object.keys(state.answers).filter(function (k) { return state.answers[k]; }).length;
 
-    state.scores[state.museum] = { right: right, total: total };
-    if (state.done.indexOf(state.museum) === -1) state.done.push(state.museum);
+    state.score = { right: right, total: total };
     state.revealed = false;
     state.picked = [];
     showScreen('final');
   }
 
-  function share(key) {
-    var s = state.scores[key];
-    return s ? s.right / (s.total || 1) : 0;
-  }
-
   function renderFinal() {
-    var score = state.scores[state.museum] || { right: 0, total: 0 };
-    var keys = Object.keys(state.scores);
-    var sumRight = keys.reduce(function (n, k) { return n + state.scores[k].right; }, 0);
-    var sumTotal = keys.reduce(function (n, k) { return n + state.scores[k].total; }, 0);
-    var pct = percent(sumRight, sumTotal);
+    var score = state.score || { right: 0, total: 0 };
+    var pct = percent(score.right, score.total);
     var rank = RANKS.filter(function (r) { return pct >= r.min; })[0];
-    var bothDone = Object.keys(MUSEUMS).every(function (k) { return state.scores[k]; });
 
     el.finalResult.textContent = 'Верных ответов: ' + score.right + ' из ' + score.total;
-    el.rankKicker.textContent = (bothDone ? 'Ваше звание · ' : 'Промежуточное звание · ') + pct + '%';
+    el.rankKicker.textContent = 'Ваше звание · ' + pct + '%';
     el.rankTitle.textContent = rank.title;
-    el.rankNote.textContent = bothDone ? rank.note : 'Пройдите второй маршрут, чтобы получить итоговое звание.';
-
-    el.rankBonus.hidden = !bothDone;
-    if (bothDone) {
-      var bonus = share('shm') > share('darwin') ? BONUS.shm
-        : share('darwin') > share('shm') ? BONUS.darwin
-        : BONUS.tie;
-      el.rankBonus.className = 'rank__bonus ' + bonus.cls;
-      el.rankBonusTitle.textContent = bonus.title;
-    }
+    el.rankNote.textContent = rank.note;
 
     el.statRight.textContent = score.right + '/' + score.total;
-    el.statAccuracy.textContent = percent(score.right, score.total) + '%';
-    el.statRoutes.textContent = state.done.length + '/' + Object.keys(MUSEUMS).length;
+    el.statAccuracy.textContent = pct + '%';
     el.finalInvite.textContent = inviteText();
   }
 
-  /** Приглашение в непройденный музей или благодарность. */
+  /** Приглашение во второй музей. */
   function inviteText() {
-    var left = Object.keys(MUSEUMS).filter(function (k) { return state.done.indexOf(k) === -1; });
-    return left.length ? MUSEUMS[left[0]].invite : 'Оба маршрута пройдены — спасибо!';
+    var other = Object.keys(MUSEUMS).filter(function (k) { return k !== state.museum; })[0];
+    return MUSEUMS[other].invite;
   }
 
   /* --- События -------------------------------------------------- */
@@ -329,6 +300,17 @@
   el.questBack.addEventListener('click', goBack);
   el.authorsBack.addEventListener('click', function () { showScreen(state.prevScreen); });
   el.feedbackBack.addEventListener('click', function () { showScreen(state.prevScreen); });
+
+  /* Пасхалка: котик на странице авторов */
+  el.meowOpen.addEventListener('click', function () { el.meow.hidden = false; });
+
+  el.meowPet.addEventListener('click', function () {
+    el.meowCat.classList.remove('is-spinning');
+    void el.meowCat.offsetWidth;               // перезапуск анимации при повторном нажатии
+    el.meowCat.classList.add('is-spinning');
+  });
+  el.meowCat.addEventListener('animationend', function () { el.meowCat.classList.remove('is-spinning'); });
+  el.meowClose.addEventListener('click', function () { el.meow.hidden = true; });
 
   el.feedbackLink.hidden = !CONFIG.feedbackUrl;
   el.feedbackMissing.hidden = !!CONFIG.feedbackUrl;

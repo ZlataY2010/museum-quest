@@ -316,8 +316,6 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   color: var(--card-tint);
   background: color-mix(in srgb, var(--card-tint) 14%, transparent);
 }
-.check { display: none; width: 13px; height: 13px; stroke-width: 3.2; }
-.museum-card.is-done .check { display: block; }
 
 .arrow {
   width: 34px; height: 34px;
@@ -445,20 +443,6 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 .rank__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 5.4vw, 26px); line-height: 1.1; color: var(--c-cream-100); }
 .rank__note { font-size: 13px; line-height: 1.45; color: rgba(220, 211, 196, .8); text-wrap: pretty; }
 
-/* Доп. звание: цвет задаётся классом */
-.rank__bonus {
-  align-self: flex-start;
-  margin-top: 4px;
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px 6px 10px;
-  border-radius: var(--r-pill);
-  font-family: var(--font-display); font-weight: 700; font-size: 14px;
-  color: var(--c-ink-900);
-  background: var(--c-cream-200);
-}
-.rank__bonus--history { background: var(--c-history); }
-.rank__bonus--nature  { background: var(--c-nature-400); }
-
 .stats { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
 .stat {
   display: flex; flex-direction: column; gap: 2px;
@@ -500,12 +484,11 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 #screen-authors,
 #screen-feedback { max-width: 620px; }
 
-.authors {
-  margin: 0; padding: 0; list-style: none;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
-}
+.authors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: start; }
+.authors__col { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .author {
-  display: flex; align-items: center;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
   min-height: 56px;
   padding: 12px 16px;
   border-radius: var(--r-md);
@@ -515,6 +498,110 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   color: var(--c-cream-100);
   overflow-wrap: anywhere;
 }
+.meow-open { gap: 8px; }
+
+/* Слайдер на странице авторов */
+.slider {
+  flex: 1;                                          /* до низа экрана — чтобы кнопку можно было отцентровать */
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin: 0 calc(-1 * clamp(14px, 4vw, 20px));      /* свайп от края до края экрана */
+}
+.slider::-webkit-scrollbar { display: none; }
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: flex; flex-direction: column;
+  gap: clamp(10px, 1.6vh, 18px);
+  padding: 0 clamp(14px, 4vw, 20px);
+}
+.slide--secret { align-items: center; justify-content: center; text-align: center; }
+
+
+/* Пасхалка «Мяу» */
+.meow {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  padding: 16px;
+  background: radial-gradient(circle at 50% 45%, rgba(100, 51, 18, .45), rgba(27, 25, 19, .82) 70%);
+  backdrop-filter: blur(6px);
+  animation: fade .3s var(--ease) both;
+}
+.meow__card {
+  position: relative;
+  width: min(100%, 340px);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 30px 24px 22px;
+  text-align: center;
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--c-history) 22%, transparent), transparent 60%),
+    linear-gradient(180deg, #2a2620, var(--c-ink-950));
+  border: 1px solid rgba(247, 190, 139, .28);
+  box-shadow: var(--shadow-panel), 0 0 60px rgba(237, 118, 14, .18);
+  animation: meow-pop .55s cubic-bezier(.3, 1.5, .5, 1) both;
+}
+
+.meow__close {
+  position: absolute; top: 12px; right: 12px; z-index: 1;
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.meow__close:hover { background: var(--surface-hover); color: var(--c-cream-100); }
+
+.meow__seal { position: relative; width: 120px; height: 120px; display: grid; place-items: center; margin-bottom: 6px; }
+.meow__ring, .meow__disc { position: absolute; border-radius: var(--r-pill); }
+.meow__ring { inset: 0; border: 1.5px dashed rgba(247, 190, 139, .55); animation: spin 18s linear infinite; }
+.meow__disc {
+  inset: 12px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c-nature-400) 45%, transparent), color-mix(in srgb, var(--c-history-800) 70%, transparent));
+  border: 1.5px solid rgba(255, 198, 165, .55);
+  box-shadow: 0 14px 36px rgba(140, 73, 26, .5);
+}
+.meow__cat { position: relative; font-size: 54px; line-height: 1; animation: meow-wiggle 1.4s ease-in-out .6s infinite; }
+
+.meow__text {
+  font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1;
+  background: linear-gradient(90deg, var(--c-history-light), var(--c-cream-100), var(--c-nature-300));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.meow__note { margin: 0 0 8px; font-size: 14px; line-height: 1.45; color: var(--text-muted); text-wrap: pretty; }
+
+.meow__credit {
+  position: absolute; left: 16px; right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  margin: 0;
+  text-align: center;
+  font-size: 12px; letter-spacing: .06em;
+  color: rgba(220, 211, 196, .6);
+}
+
+.meow__float { position: absolute; font-size: 20px; line-height: 1; pointer-events: none; animation: meow-float 3.2s ease-in-out infinite; }
+.meow__float--1 { top: 18px;  left: 22px;  transform: rotate(-20deg); }
+.meow__float--2 { top: 56px;  right: 26px; animation-delay: .8s; }
+.meow__float--3 { top: 120px; right: 18px; transform: rotate(25deg); animation-delay: 1.6s; font-size: 16px; }
+.meow__float--4 { top: 110px; left: 20px;  animation-delay: 2.2s; font-size: 16px; }
+
+.meow__cat.is-spinning { animation: meow-spin .9s cubic-bezier(.4, 0, .2, 1); }
+@keyframes meow-spin { from { transform: rotate(0); } to { transform: rotate(720deg); } }
+
+@keyframes meow-pop { from { opacity: 0; transform: translateY(20px) scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes meow-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+@keyframes meow-float { 0%, 100% { translate: 0 0; opacity: .55; } 50% { translate: 0 -8px; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .meow__ring, .meow__cat, .meow__float { animation: none; }
+}
+
 .authors__museums { align-self: center; max-width: none; margin-top: 8px; text-align: center; }
 
 /* --- 12. Анимации --------------------------------------------- */

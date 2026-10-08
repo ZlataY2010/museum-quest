@@ -35,7 +35,6 @@
         </div>
 
         <h3 class="hero__title rise rise--2">Два музея одна история</h3>
-        <p class="hero__lead rise rise--3">Совместный квест по залам природы и истории.</p>
         <button type="button" class="btn btn--hero rise rise--4" data-goto="select">Начать квест</button>
         <div class="hero__links rise rise--4">
           <button type="button" class="btn-link" data-goto="authors">
@@ -71,7 +70,6 @@
               <svg class="icon" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
             </span>
             <span class="badge">
-              <svg class="icon check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
               <span data-role="kicker">Квест 01</span>
             </span>
           </div>
@@ -91,7 +89,6 @@
               <svg class="icon" viewBox="0 0 24 24"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg>
             </span>
             <span class="badge">
-              <svg class="icon check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
               <span data-role="kicker">Квест 02</span>
             </span>
           </div>
@@ -171,17 +168,12 @@
           <span class="kicker kicker--invite" id="rank-kicker"></span>
           <span class="rank__title" id="rank-title"></span>
           <span class="rank__note" id="rank-note"></span>
-          <span class="rank__bonus" id="rank-bonus" hidden>
-            <svg class="icon icon--xs" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>
-            <span id="rank-bonus-title"></span>
-          </span>
         </div>
       </div>
 
       <div class="stats rise rise--3">
         <div class="stat"><span class="stat__value" id="stat-right"></span><span class="stat__label">Верно</span></div>
         <div class="stat"><span class="stat__value" id="stat-accuracy"></span><span class="stat__label">Точность</span></div>
-        <div class="stat"><span class="stat__value" id="stat-routes"></span><span class="stat__label">Маршрутов</span></div>
       </div>
 
       <!-- Награда: стикерпак -->
@@ -213,19 +205,62 @@
         <span class="kicker">О проекте</span>
       </header>
 
+      <!-- Слайдер: свайп влево — кнопка секретного помощника -->
+      <div class="slider" id="authors-slider">
+        <div class="slide">
       <div class="stack rise">
         <h2 class="title">Авторы</h2>
         <p class="lead">Над квестом работали:</p>
       </div>
 
-      <ul class="authors rise rise--2">
-        <li class="author">Фамилия Имя Отчество</li>
-        <li class="author">Фамилия Имя Отчество</li>
-        <li class="author">Фамилия Имя Отчество</li>
-        <li class="author">Фамилия Имя Отчество</li>
-      </ul>
+      <div class="authors rise rise--2">
+        <ul class="authors__col">
+          <li class="author">Татьяна Х.</li>
+          <li class="author">Злата Ё.</li>
+          <li class="author">Дарья О.</li>
+          <li class="author">Ольга К.</li>
+        </ul>
+        <ul class="authors__col">
+          <li class="author">Юрий К.</li>
+          <li class="author">Полина Е.</li>
+          <li class="author">Любовь В.</li>
+        </ul>
+      </div>
 
       <p class="lead authors__museums rise rise--3">Дарвиновский музей&ensp;×&ensp;Государственный исторический музей</p>
+        </div>
+
+        <div class="slide slide--secret">
+          <button type="button" class="btn btn--outline meow-open" id="meow-open">
+            <span aria-hidden="true">🐾</span> Секретный помощник
+          </button>
+        </div>
+      </div>
+
+      <!-- Пасхалка: котик -->
+      <div class="meow" id="meow" role="dialog" aria-label="Мяу" hidden>
+        <div class="meow__card">
+          <button type="button" class="meow__close" id="meow-close" aria-label="Закрыть">
+            <svg class="icon icon--sm" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          <span class="meow__float meow__float--1" aria-hidden="true">🐾</span>
+          <span class="meow__float meow__float--2" aria-hidden="true">💛</span>
+          <span class="meow__float meow__float--3" aria-hidden="true">🐾</span>
+          <span class="meow__float meow__float--4" aria-hidden="true">✨</span>
+
+          <div class="meow__seal">
+            <div class="meow__ring"></div>
+            <div class="meow__disc"></div>
+            <span class="meow__cat" id="meow-cat" aria-hidden="true">🐱</span>
+          </div>
+
+          <span class="kicker kicker--invite">Секретный помощник</span>
+          <span class="meow__text">Мяу!</span>
+          <p class="meow__note">Вы нашли музейного котика. Он охраняет авторов квеста.</p>
+          <button type="button" class="btn btn--primary btn--block" id="meow-pet">Погладить</button>
+        </div>
+        <p class="meow__credit">The site was created by Zlata York in 2026</p>
+      </div>
     </section>
 
     <!-- ===================== 6. Обратная связь ===================== -->
