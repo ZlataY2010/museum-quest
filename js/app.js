@@ -367,8 +367,8 @@
   function toggleMeow(open) {
     el.meow.hidden = !open;
     document.body.classList.toggle('is-meow', open);
-    // Фокус — внутрь окна при открытии и обратно на кнопку при закрытии (для клавиатуры и скринридеров).
-    (open ? el.meowPet : el.meowOpen).focus();
+    // Фокус — на само окно при открытии (без рамки на кнопках) и обратно на кнопку при закрытии.
+    (open ? el.meow : el.meowOpen).focus({ preventScroll: true });
   }
 
   el.meowOpen.addEventListener('click', function () { toggleMeow(true); });
@@ -386,7 +386,8 @@
       var focusable = el.meow.querySelectorAll('button');
       var first = focusable[0];
       var last = focusable[focusable.length - 1];
-      var inside = el.meow.contains(document.activeElement);
+      // Фокус вне кнопок окна (на самом окне или снаружи) — тоже заворачиваем внутрь.
+      var inside = el.meow.contains(document.activeElement) && document.activeElement !== el.meow;
 
       if (event.shiftKey && (document.activeElement === first || !inside)) {
         event.preventDefault();

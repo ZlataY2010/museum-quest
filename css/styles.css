@@ -561,6 +561,8 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   animation: fade .3s var(--ease) both;
 }
+/* Фокус ставится на само окно при открытии — без рамки и без скругления из общего :focus-visible */
+.meow:focus, .meow:focus-visible { outline: none; border-radius: 0; }
 /* Частицы поверх размытого фона, но под карточкой */
 .particles--meow { position: absolute; z-index: 0; }
 .meow__card, .meow__credit { z-index: 1; }
@@ -592,7 +594,15 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 }
 .meow__close:hover { background: var(--surface-hover); color: var(--c-cream-100); }
 
-.meow__seal { position: relative; width: 120px; height: 120px; display: grid; place-items: center; margin-bottom: 6px; }
+/* Круг с котиком. Размер одинаковый на всех экранах.
+   --orbit — радиус орбиты парящих иконок: радиус круга (60px) + зазор, чтобы иконки не заходили на круг.
+   Внешние отступы освобождают место под орбиту сверху и снизу. */
+.meow__seal {
+  --orbit: 84px;
+  position: relative; width: 120px; height: 120px; flex: none;
+  display: grid; place-items: center;
+  margin: 26px 0 30px;
+}
 .meow__ring, .meow__disc { position: absolute; border-radius: var(--r-pill); }
 .meow__ring { inset: 0; border: 1.5px dashed rgba(247, 190, 139, .55); animation: spin 18s linear infinite; }
 .meow__disc {
@@ -604,9 +614,10 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 .meow__cat { position: relative; font-size: 54px; line-height: 1; color: #fff; animation: meow-wiggle 1.4s ease-in-out .6s infinite; }
 .meow__cat .icon { width: 1em; height: 1em; stroke-width: 2.2; }
 
+/* «Мяу!» — всегда белое и одного размера */
 .meow__text {
   font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 1;
-  color: #fff;
+  color: #fff; -webkit-text-fill-color: #fff;
 }
 .meow__note { margin: 0 0 8px; font-size: 14px; line-height: 1.45; color: var(--text-muted); text-wrap: pretty; }
 #meow-pet { color: #fff; }
@@ -621,13 +632,23 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 }
 body.is-meow .footer { visibility: hidden; }
 
-/* Парящие иконки (лапки, сердце, искра) вокруг круга с котиком; координаты — от блока .meow__seal */
-.meow__float { position: absolute; font-size: 20px; line-height: 1; color: var(--c-history-light); pointer-events: none; animation: meow-float 3.2s ease-in-out infinite; }
+/* Парящие иконки (лапки, сердце, искра) летают по орбите вокруг круга с котиком.
+   Каждая стоит в центре .meow__seal и выносится на радиус --orbit; вторая rotate
+   компенсирует поворот, чтобы иконка не переворачивалась. Отрицательные задержки
+   расставляют четыре иконки по орбите через каждые 90°. */
+.meow__float {
+  position: absolute; top: 50%; left: 50%;
+  width: 20px; height: 20px; margin: -10px 0 0 -10px;   /* центр иконки — в центре круга */
+  font-size: 20px; line-height: 1;
+  color: var(--c-history-light);
+  pointer-events: none;
+  animation: meow-orbit 16s linear infinite, meow-twinkle 3.2s ease-in-out infinite;
+}
 .meow__float .icon { width: 1em; height: 1em; stroke-width: 2.4; }
-.meow__float--1 { top: -2%;  left: -20%;  transform: rotate(-20deg); }
-.meow__float--2 { top: 4%;   right: -20%; animation-delay: .8s; color: #F5C451; }
-.meow__float--3 { bottom: 6%; right: -18%; transform: rotate(25deg); animation-delay: 1.6s; font-size: 16px; }
-.meow__float--4 { bottom: 10%; left: -18%; animation-delay: 2.2s; font-size: 16px; color: var(--c-cream-100); }
+.meow__float--1 { animation-delay: 0s, 0s; }
+.meow__float--2 { animation-delay: -4s, .8s; color: #F5C451; }
+.meow__float--3 { animation-delay: -8s, 1.6s; }
+.meow__float--4 { animation-delay: -12s, 2.2s; color: var(--c-cream-100); }
 
 /* «Погладить» — котик делает два оборота (класс добавляет app.js) */
 .meow__cat.is-spinning { animation: meow-spin .9s cubic-bezier(.4, 0, .2, 1); }
@@ -635,11 +656,20 @@ body.is-meow .footer { visibility: hidden; }
 
 @keyframes meow-pop { from { opacity: 0; transform: translateY(20px) scale(.7); } to { opacity: 1; transform: none; } }
 @keyframes meow-wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
-@keyframes meow-float { 0%, 100% { translate: 0 0; opacity: .55; } 50% { translate: 0 -8px; opacity: 1; } }
+@keyframes meow-orbit {
+  from { transform: rotate(0deg)   translateX(var(--orbit)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit)) rotate(-360deg); }
+}
+@keyframes meow-twinkle { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 
 /* Бесконечные анимации котика отключаем полностью (общее правило в конце файла их только ускоряет) */
 @media (prefers-reduced-motion: reduce) {
   .meow__ring, .meow__cat, .meow__float { animation: none; }
+  /* Без анимации иконки неподвижно стоят на орбите по диагоналям */
+  .meow__float--1 { transform: rotate(-135deg) translateX(var(--orbit)) rotate(135deg); }
+  .meow__float--2 { transform: rotate(-45deg)  translateX(var(--orbit)) rotate(45deg); }
+  .meow__float--3 { transform: rotate(45deg)   translateX(var(--orbit)) rotate(-45deg); }
+  .meow__float--4 { transform: rotate(135deg)  translateX(var(--orbit)) rotate(-135deg); }
 }
 
 /* --- 12. Адаптив под телефоны ----------------------------------- */
@@ -679,9 +709,6 @@ body.is-meow .footer { visibility: hidden; }
   .stat__value { font-size: 18px; }
   .footer { padding-top: 10px; padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   .author { min-height: 48px; padding: 10px 8px; }
-  .meow__seal { width: 96px; height: 96px; }
-  .meow__cat { font-size: 44px; }
-  .meow__text { font-size: 34px; }
 }
 @media (max-height: 620px) {
   .screen--page, #screen-final { gap: 8px; }
