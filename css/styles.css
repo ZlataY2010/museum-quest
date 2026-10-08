@@ -135,7 +135,8 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
 }
 
 .footer {
-  padding: 18px 22px 26px;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px;
+  padding: 18px 22px calc(22px + env(safe-area-inset-bottom, 0px));
   text-align: center;
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   color: rgba(192, 182, 165, .6);
@@ -147,6 +148,15 @@ a:hover { color: color-mix(in srgb, var(--tint) 80%, #fff); }
   color: var(--tint); cursor: pointer;
 }
 .footer__link:hover { text-decoration: underline; }
+.footer__part { white-space: nowrap; }
+
+/* На телефоне — две аккуратные строки: подпись и ссылки */
+@media (max-width: 560px) {
+  .footer { flex-direction: column; align-items: center; }
+  .footer__sep { display: none; }
+}
+
+.nowrap { white-space: nowrap; }
 
 /* Появление элементов */
 .rise { animation: rise .8s var(--ease) both; }
@@ -357,7 +367,7 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   color: var(--c-cream-100);
   background: var(--surface-strong);
   border: 1.5px solid var(--border);
-  border-radius: var(--r-pill);
+  border-radius: 24px;                 /* в одну строку — «таблетка», в несколько — аккуратный прямоугольник */
   cursor: pointer;
   transition: background .22s, border-color .22s, transform .22s;
 }
@@ -490,13 +500,13 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   display: flex; align-items: center; justify-content: center;
   text-align: center;
   min-height: 56px;
-  padding: 12px 16px;
+  padding: 12px clamp(8px, 3vw, 16px);
   border-radius: var(--r-md);
   background: var(--surface);
   border: 1px solid var(--border);
-  font-family: var(--font-display); font-weight: 700; font-size: 16px; line-height: 1.25;
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(14px, 4.2vw, 16px); line-height: 1.25;
   color: var(--c-cream-100);
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .meow-open { gap: 8px; }
 
