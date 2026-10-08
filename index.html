@@ -60,7 +60,6 @@
 
       <div class="stack rise">
         <h2 class="title">Выберите музей</h2>
-        <p class="lead">Описание квеста</p>
       </div>
 
       <div class="museum-grid">
@@ -232,26 +231,29 @@
 
         <div class="slide slide--secret">
           <button type="button" class="btn btn--outline meow-open" id="meow-open">
-            <span aria-hidden="true">🐾</span> Секретный помощник
+            Секретный помощник
           </button>
         </div>
       </div>
 
       <!-- Пасхалка: котик -->
       <div class="meow" id="meow" role="dialog" aria-label="Мяу" hidden>
+        <canvas class="particles particles--meow" aria-hidden="true"></canvas>
         <div class="meow__card">
           <button type="button" class="meow__close" id="meow-close" aria-label="Закрыть">
             <svg class="icon icon--sm" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
-          <span class="meow__float meow__float--1" aria-hidden="true">🐾</span>
-          <span class="meow__float meow__float--2" aria-hidden="true">💛</span>
-          <span class="meow__float meow__float--3" aria-hidden="true">🐾</span>
-          <span class="meow__float meow__float--4" aria-hidden="true">✨</span>
 
           <div class="meow__seal">
             <div class="meow__ring"></div>
             <div class="meow__disc"></div>
-            <span class="meow__cat" id="meow-cat" aria-hidden="true">🐱</span>
+            <span class="meow__cat" id="meow-cat" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"/><path d="M8 14v.5"/><path d="M16 14v.5"/><path d="M11.25 16.25h1.5L12 17l-.75-.75Z"/></svg>
+            </span>
+            <span class="meow__float meow__float--1" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+            <span class="meow__float meow__float--2" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+            <span class="meow__float meow__float--3" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg></span>
+            <span class="meow__float meow__float--4" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg></span>
           </div>
 
           <span class="kicker kicker--invite">Секретный помощник</span>

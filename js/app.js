@@ -115,6 +115,29 @@
     return node;
   }
 
+  /* --- Подгонка под экран ------------------------------------- */
+
+  /** Ужимает текст и отступы вопроса (--k от 1 до 0.72), пока всё не поместится без прокрутки. */
+  var panel = document.querySelector('#screen-quest .panel');
+  function fitQuest() {
+    var screen = screens.quest;
+    if (screen.hidden) return;
+    var k = 1;
+    screen.style.setProperty('--k', k);
+    while (panel.scrollHeight > panel.clientHeight + 1 && k > 0.72) {
+      k = Math.round((k - 0.02) * 100) / 100;
+      screen.style.setProperty('--k', k);
+    }
+    panel.scrollTop = 0;
+  }
+
+  var fitTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fitQuest, 80);
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitQuest);
+
   /* --- Навигация ------------------------------------------------ */
 
   var ASIDE_SCREENS = ['authors', 'feedback']; // открываются поверх и возвращают туда, откуда пришли
@@ -128,6 +151,7 @@
     if (name === 'final') renderFinal();
     if (name === 'authors') $('authors-slider').scrollTo({ left: 0, behavior: 'instant' });
     window.scrollTo(0, 0);
+    fitQuest();
   }
 
   /* --- Выбор музея ---------------------------------------------- */
@@ -174,6 +198,7 @@
 
     el.questNext.disabled = state.picked.length === 0;
     el.questNext.textContent = state.index + 1 >= list.length && state.revealed ? 'Завершить квест' : 'Далее';
+    fitQuest();
   }
 
   /** Шаг 1: варианты ответа. */
@@ -302,7 +327,13 @@
   el.feedbackBack.addEventListener('click', function () { showScreen(state.prevScreen); });
 
   /* Пасхалка: котик на странице авторов */
-  el.meowOpen.addEventListener('click', function () { el.meow.hidden = false; });
+  /** Открыть/закрыть окно котика; подвал под ним прячем, чтобы не просвечивал. */
+  function toggleMeow(open) {
+    el.meow.hidden = !open;
+    document.body.classList.toggle('is-meow', open);
+  }
+
+  el.meowOpen.addEventListener('click', function () { toggleMeow(true); });
 
   el.meowPet.addEventListener('click', function () {
     el.meowCat.classList.remove('is-spinning');
@@ -310,7 +341,7 @@
     el.meowCat.classList.add('is-spinning');
   });
   el.meowCat.addEventListener('animationend', function () { el.meowCat.classList.remove('is-spinning'); });
-  el.meowClose.addEventListener('click', function () { el.meow.hidden = true; });
+  el.meowClose.addEventListener('click', function () { toggleMeow(false); });
 
   el.feedbackLink.hidden = !CONFIG.feedbackUrl;
   el.feedbackMissing.hidden = !!CONFIG.feedbackUrl;
