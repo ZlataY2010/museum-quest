@@ -11,7 +11,7 @@
 
   var CONFIG = {
     showHints: true,          // показывать подсказку под вариантами ответа
-    feedbackUrl: '',          // ссылка на Яндекс Форму для отзывов ('' — кнопка скрыта)
+    feedbackUrl: 'https://forms.yandex.ru/u/6ac943a12c4f890df455a502', // ссылка на Яндекс Форму для отзывов ('' — кнопка скрыта)
     // Счётчик прошедших квест — бесплатный сервис Abacus (abacus.jasoncameron.dev), без регистрации.
     // '' — счётчик выключен. Сменить адрес = начать счёт заново.
     counterUrl: 'https://abacus.jasoncameron.dev/{action}/shm-darwin-museum-quest/finished'

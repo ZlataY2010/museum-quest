@@ -341,7 +341,6 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 .museum-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .museum-card__body { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
 .museum-card__name { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.1; color: var(--c-cream-100); }
-.museum-card__sub { font-size: 14px; color: rgba(220, 211, 196, .75); }
 .museum-card__foot {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding-top: 10px;
