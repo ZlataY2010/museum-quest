@@ -11,7 +11,10 @@
 
   var CONFIG = {
     showHints: true,          // показывать подсказку под вариантами ответа
-    feedbackUrl: ''           // ссылка на Яндекс Форму для отзывов ('' — кнопка скрыта)
+    feedbackUrl: '',          // ссылка на Яндекс Форму для отзывов ('' — кнопка скрыта)
+    // Счётчик прошедших квест — бесплатный сервис Abacus (abacus.jasoncameron.dev), без регистрации.
+    // '' — счётчик выключен. Сменить адрес = начать счёт заново.
+    counterUrl: 'https://abacus.jasoncameron.dev/{action}/shm-darwin-museum-quest/finished'
   };
 
   var MUSEUMS = {
@@ -87,6 +90,8 @@
     meowCat: $('meow-cat'),
     meowPet: $('meow-pet'),
     meowClose: $('meow-close'),
+    meowCount: $('meow-count'),
+    meowCountValue: $('meow-count-value'),
     finalResult: $('final-result'),
     rankKicker: $('rank-kicker'),
     rankTitle: $('rank-title'),
@@ -178,12 +183,14 @@
 
   /* --- Выбор музея ---------------------------------------------- */
 
-  /** Подписи на карточках музеев: номер квеста и количество вопросов. */
+  /** Подписи на карточках музеев: номер квеста и количество вопросов (или «появится позже», если квест закрыт). */
   function renderMuseumCards() {
     el.museumCards.forEach(function (card) {
       var key = card.dataset.startQuest;
       card.querySelector('[data-role="kicker"]').textContent = MUSEUMS[key].kicker;
-      card.querySelector('[data-role="meta"]').textContent = (QUESTIONS[key] || []).length + ' вопросов';
+      card.querySelector('[data-role="meta"]').textContent = card.disabled
+        ? 'Квест появится позже'
+        : (QUESTIONS[key] || []).length + ' вопросов';
     });
   }
 
@@ -318,6 +325,7 @@
     state.score = { right: right, total: total };
     state.revealed = false;
     state.picked = [];
+    countFinish();
     showScreen('final');
   }
 
@@ -361,12 +369,48 @@
   el.authorsBack.addEventListener('click', function () { showScreen(state.prevScreen); });
   el.feedbackBack.addEventListener('click', function () { showScreen(state.prevScreen); });
 
+  /* --- Счётчик прошедших --------------------------------------- */
+
+  var COUNTED_KEY = 'quest-finish-counted'; // метка в браузере: это устройство уже посчитано
+
+  /** Запрос к счётчику: 'hit' — прибавить 1, 'get' — узнать число. Возвращает Promise с числом. */
+  function counter(action) {
+    return fetch(CONFIG.counterUrl.replace('{action}', action))
+      .then(function (res) {
+        if (res.status === 404) return { value: 0 }; // ещё никто не прошёл — счётчик не создан
+        if (!res.ok) throw new Error('counter ' + res.status);
+        return res.json();
+      })
+      .then(function (data) { return data.value; });
+  }
+
+  /** Прибавить 1 к счётчику — один раз с устройства. Ошибки сети не мешают квесту. */
+  function countFinish() {
+    if (!CONFIG.counterUrl) return;
+    try { if (localStorage.getItem(COUNTED_KEY)) return; } catch (e) { /* хранилище недоступно — считаем */ }
+    counter('hit')
+      .then(function () { try { localStorage.setItem(COUNTED_KEY, '1'); } catch (e) {} })
+      .catch(function () {});
+  }
+
+  /** Показать число в пасхалке; если сервис не ответил — строка остаётся скрытой. */
+  function renderCount() {
+    if (!CONFIG.counterUrl) return;
+    counter('get')
+      .then(function (value) {
+        el.meowCountValue.textContent = value.toLocaleString('ru-RU');
+        el.meowCount.hidden = false;
+      })
+      .catch(function () {});
+  }
+
   /* --- Пасхалка: котик на странице авторов ---------------------- */
 
   /** Открыть/закрыть окно котика; подвал под ним прячем, чтобы не просвечивал. */
   function toggleMeow(open) {
     el.meow.hidden = !open;
     document.body.classList.toggle('is-meow', open);
+    if (open) renderCount();
     // Фокус — на само окно при открытии (без рамки на кнопках) и обратно на кнопку при закрытии.
     (open ? el.meow : el.meowOpen).focus({ preventScroll: true });
   }

@@ -86,7 +86,7 @@
           </div>
         </button>
 
-        <button type="button" class="museum-card museum-card--history rise rise--2" data-start-quest="shm">
+        <button type="button" class="museum-card museum-card--history rise rise--2" data-start-quest="shm" disabled>
           <div class="museum-card__head">
             <span class="mark mark--sm mark--history">
               <svg class="icon" viewBox="0 0 24 24"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg>
@@ -101,7 +101,6 @@
           </div>
           <div class="museum-card__foot">
             <span class="meta" data-role="meta"></span>
-            <span class="arrow"><svg class="icon icon--sm" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
           </div>
         </button>
       </div>
@@ -188,10 +187,10 @@
           </span>
           <div class="reward__titles">
             <span class="reward__title">Стикерпак в подарок</span>
-            <span class="reward__sub">Нажмите кнопку, чтобы забрать стикеры</span>
+            <span class="reward__sub">Стикеры откроются в Telegram</span>
           </div>
         </div>
-        <button type="button" class="btn btn--outline">Получить стикерпак</button>
+        <a class="btn btn--outline" href="https://t.me/addstickers/SHMDarvinskiyAnimals" target="_blank" rel="noopener">Получить стикерпак</a>
       </div>
 
       <div class="stack stack--tight stack--full rise rise--4">
@@ -268,7 +267,11 @@
           <p class="meow__note">Вы нашли музейного котика. Он охраняет авторов квеста.</p>
           <button type="button" class="btn btn--primary btn--block" id="meow-pet">Погладить</button>
         </div>
-        <p class="meow__credit">The site was created by Zlata York in 2026</p>
+        <div class="meow__credit">
+          <!-- Число берётся из счётчика (CONFIG.counterUrl в app.js); без ответа сервиса строка скрыта -->
+          <p class="meow__count" id="meow-count" hidden>Квест прошли: <span id="meow-count-value"></span></p>
+          <p>The site was created by Zlata York in 2026</p>
+        </div>
       </div>
     </section>
 

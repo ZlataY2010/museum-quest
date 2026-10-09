@@ -248,7 +248,7 @@ a.btn { display: inline-flex; align-items: center; justify-content: center; }
   background: color-mix(in srgb, var(--tint-fill) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--tint-fill) 55%, transparent);
 }
-.btn--outline:hover { filter: none; background: color-mix(in srgb, var(--tint-fill) 24%, transparent); }
+.btn--outline:hover { filter: none; color: var(--c-cream-100); background: color-mix(in srgb, var(--tint-fill) 24%, transparent); }
 
 .btn-link {
   display: inline-flex; align-items: center; gap: 8px;
@@ -325,6 +325,14 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   .museum-card:hover { transform: translateY(-4px); background: rgba(249, 244, 237, .11); box-shadow: 0 22px 50px rgba(0, 0, 0, .4); }
 }
 .museum-card:active { transform: scale(.99); }
+/* Квест ещё не готов: карточка видна, но не нажимается */
+.museum-card:disabled { cursor: default; }
+/* opacity на саму карточку не ставим — её перебивает анимация .rise */
+.museum-card:disabled > * { opacity: .55; }
+@media (hover: hover) {
+  .museum-card:disabled:hover { transform: none; background: var(--surface); box-shadow: none; }
+}
+.museum-card:disabled:active { transform: none; }
 
 .museum-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .museum-card__body { display: flex; flex-direction: column; gap: 6px; margin-top: auto; }
@@ -612,7 +620,7 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   box-shadow: 0 14px 36px rgba(140, 73, 26, .5);
 }
 .meow__cat { position: relative; font-size: 54px; line-height: 1; color: #fff; animation: meow-wiggle 1.4s ease-in-out .6s infinite; }
-.meow__cat .icon { width: 1em; height: 1em; stroke-width: 2.2; }
+.meow__cat .icon { width: 1em; height: 1em; stroke-width: 2.2; stroke: #fff; }
 
 /* «Мяу!» — всегда белое и одного размера */
 .meow__text {
@@ -630,6 +638,9 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
   font-size: 12px; letter-spacing: .06em;
   color: var(--c-cream-200);
 }
+.meow__credit p { margin: 0; }
+.meow__credit .meow__count { margin-bottom: 6px; font-size: 13px; color: #fff; }
+.meow__count span { font-weight: 700; }
 body.is-meow .footer { visibility: hidden; }
 
 /* Парящие иконки (лапки, сердце, искра) летают по орбите вокруг круга с котиком.
@@ -648,7 +659,8 @@ body.is-meow .footer { visibility: hidden; }
 .meow__float--1 { animation-delay: 0s, 0s; }
 .meow__float--2 { animation-delay: -4s, .8s; color: #F5C451; }
 .meow__float--3 { animation-delay: -8s, 1.6s; }
-.meow__float--4 { animation-delay: -12s, 2.2s; color: var(--c-cream-100); }
+/* Звёздочка — чисто белая и мерцает слабее остальных, чтобы не казаться серой */
+.meow__float--4 { animation-name: meow-orbit, meow-twinkle-white; animation-delay: -12s, 2.2s; color: #fff; }
 
 /* «Погладить» — котик делает два оборота (класс добавляет app.js) */
 .meow__cat.is-spinning { animation: meow-spin .9s cubic-bezier(.4, 0, .2, 1); }
@@ -661,6 +673,7 @@ body.is-meow .footer { visibility: hidden; }
   to   { transform: rotate(360deg) translateX(var(--orbit)) rotate(-360deg); }
 }
 @keyframes meow-twinkle { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes meow-twinkle-white { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
 
 /* Бесконечные анимации котика отключаем полностью (общее правило в конце файла их только ускоряет) */
 @media (prefers-reduced-motion: reduce) {
