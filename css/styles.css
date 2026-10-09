@@ -26,6 +26,10 @@
   --c-history-900: #402310;
   --c-history-800: #643312;
 
+  /* Особая ачивка за 100% */
+  --c-gold: #F5C451;
+  --c-gold-ink: #3a2a06;
+
   /* Проверка ответа */
   --c-right: #3FB86B;
   --c-wrong: #E5484D;
@@ -481,6 +485,27 @@ body[data-museum="shm"] .kicker--invite { color: color-mix(in srgb, var(--c-hist
 .rank__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .rank__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(20px, 5.4vw, 26px); line-height: 1.1; color: var(--c-cream-100); }
 .rank__note { font-size: 13px; line-height: 1.45; color: rgba(220, 211, 196, .8); text-wrap: pretty; }
+
+/* Особая ачивка за 100%: золотая карточка с кубком и бегущим бликом */
+.rank__trophy { display: none; }
+.rank--perfect .rank__trophy { display: block; }
+.rank--perfect .rank__medal { display: none; }
+.rank--perfect {
+  position: relative; overflow: hidden;
+  background: color-mix(in srgb, var(--c-gold) 14%, transparent);
+  border-color: color-mix(in srgb, var(--c-gold) 70%, transparent);
+  box-shadow: 0 0 34px color-mix(in srgb, var(--c-gold) 28%, transparent);
+}
+.rank--perfect .rank__icon { color: var(--c-gold-ink); background: var(--c-gold); }
+.rank.rank--perfect .kicker { color: var(--c-gold); }   /* сильнее, чем цвет кикера у ГИМа */
+.rank--perfect::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 236, 170, .22) 50%, transparent 65%);
+  transform: translateX(-100%);
+  animation: rank-shine 3.2s ease-in-out 1s infinite;
+}
+@keyframes rank-shine { 0% { transform: translateX(-100%); } 45%, 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .rank--perfect::after { animation: none !important; display: none; } }
 
 .stats { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
 .stat {

@@ -30,6 +30,9 @@
     { min: 0,  title: 'Юный исследователь', note: 'Каждый учёный с чего-то начинал. Возвращайтесь за новыми открытиями!' }
   ];
 
+  /* Особая ачивка за 100% верных ответов — заменяет обычное звание на финале */
+  var PERFECT = { title: 'Знаток музея', note: 'Ни одной ошибки! Такое удаётся немногим — вы настоящий эксперт.' };
+
   var LETTERS = ['А', 'Б', 'В', 'Г'];                     // буквы вариантов ответа по индексу
   var DEFAULT_HINT = 'Подсказка. Осмотритесь в зале.';    // если у вопроса нет поля hint
   var ASIDE_SCREENS = ['authors', 'feedback'];            // открываются «сбоку» и возвращают туда, откуда пришли
@@ -93,6 +96,7 @@
     meowCount: $('meow-count'),
     meowCountValue: $('meow-count-value'),
     finalResult: $('final-result'),
+    rank: $('rank'),
     rankKicker: $('rank-kicker'),
     rankTitle: $('rank-title'),
     rankNote: $('rank-note'),
@@ -335,9 +339,13 @@
     var pct = percent(score.right, score.total);
     // RANKS отсортированы по убыванию min — берём первое подходящее звание.
     var rank = RANKS.filter(function (r) { return pct >= r.min; })[0];
+    // Все ответы верные — вместо звания золотая ачивка.
+    var perfect = score.total > 0 && score.right === score.total;
+    if (perfect) rank = PERFECT;
 
     el.finalResult.textContent = 'Верных ответов: ' + score.right + ' из ' + score.total;
-    el.rankKicker.textContent = 'Ваше звание · ' + pct + '%';
+    el.rank.classList.toggle('rank--perfect', perfect);
+    el.rankKicker.textContent = (perfect ? 'Особая ачивка · ' : 'Ваше звание · ') + pct + '%';
     el.rankTitle.textContent = rank.title;
     el.rankNote.textContent = rank.note;
 
